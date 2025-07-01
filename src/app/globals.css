@@ -120,5 +120,6 @@
   }
   body {
     @apply bg-background text-foreground;
+    padding-top: 64px; /* Hauteur de la navbar (h-16 = 64px) */
   }
 }
