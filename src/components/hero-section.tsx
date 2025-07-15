@@ -1,187 +1,142 @@
-import Image from "next/image";
 import { Button } from "./ui/button";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { motion, useInView, useAnimation, Variants } from "framer-motion";
 import { useRef, useEffect } from "react";
+import { HeroIllustration } from "./hero-illustration";
+import { HeroIllustrationMobile } from "./hero-illustration-mobile";
 
 export default function HeroSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(sectionRef, { once: false, amount: 0.15 });
   
-  // Contrôleurs d'animation
-  const textControls = useAnimation();
-  const imageControls = useAnimation();
-  const decorControls = useAnimation();
+  const mainControls = useAnimation();
   
-  // Déclencher les animations lorsque la section est visible
   useEffect(() => {
     if (isInView) {
-      textControls.start("visible");
-      imageControls.start("visible");
-      decorControls.start("visible");
+      mainControls.start("visible");
     } else {
-      textControls.start("hidden");
-      imageControls.start("hidden");
-      decorControls.start("hidden");
+      mainControls.start("hidden");
     }
-  }, [isInView, textControls, imageControls, decorControls]);
+  }, [isInView, mainControls]);
   
-  // Animation variants
-  const textVariants: Variants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { 
-      opacity: 1, 
-      y: 0,
-      transition: { 
+  const mainVariants: Variants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
         duration: 0.6,
-        ease: "easeOut" as const,
-        when: "beforeChildren" as const,
+        when: "beforeChildren",
         staggerChildren: 0.1
       }
     }
   };
   
-  const childTextVariants: Variants = {
+  const childVariants: Variants = {
     hidden: { opacity: 0, y: 20 },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       y: 0,
-      transition: { duration: 0.5, ease: "easeOut" as const }
+      transition: { duration: 0.5, ease: [0.645, 0.045, 0.355, 1] }
     }
   };
-  
-  const imageVariants: Variants = {
+
+  const statsVariants: Variants = {
     hidden: { opacity: 0, scale: 0.95 },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       scale: 1,
-      transition: { 
-        duration: 0.7,
-        ease: "easeOut" as const,
-        delay: 0.2
-      }
-    }
-  };
-  
-  const decorVariants: Variants = {
-    hidden: { opacity: 0, scale: 0.9 },
-    visible: { 
-      opacity: 1, 
-      scale: 1,
-      transition: { 
-        duration: 1,
-        ease: "easeOut" as const
-      }
+      transition: { duration: 0.6, ease: "easeOut" }
     }
   };
   
   return (
-    <section ref={sectionRef} className="bg-teal-50/80 text-gray-800 pt-16 pb-16 relative overflow-hidden min-h-[80vh] flex items-center">
-      {/* Éléments décoratifs */}
-      <motion.div 
-        className="absolute top-0 left-1/2 w-96 h-96 rounded-full bg-teal-100/50 blur-3xl"
-        initial="hidden"
-        animate={decorControls}
-        variants={decorVariants}
-      ></motion.div>
-      <motion.div 
-        className="absolute bottom-0 right-0 w-64 h-64 rounded-full bg-teal-100/30 blur-2xl"
-        initial="hidden"
-        animate={decorControls}
-        variants={decorVariants}
-      ></motion.div>
+    <section 
+      ref={sectionRef} 
+      className="relative min-h-[90vh] flex items-center overflow-hidden bg-gradient-to-br from-gray-50 via-teal-50/30 to-white mt-8 md:mt-0"
+    >
+      <div 
+        className="absolute inset-0 -z-10" 
+        style={{
+          backgroundImage: `linear-gradient(to right, rgb(229 231 235) 1px, transparent 1px),
+                           linear-gradient(to bottom, rgb(229 231 235) 1px, transparent 1px)`,
+          backgroundSize: '48px 48px',
+          opacity: 0.02
+        }}
+      />
       
-      <div className="container mx-auto px-4 md:px-8 lg:px-16 relative z-10">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-8">
-          {/* Left Column - Text Content */}
-          <motion.div 
-            className="md:w-1/2 md:pr-8"
+      <div className="container mx-auto px-4">
+        <div className="flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-16">
+          {/* Left Column - Content */}
+          <motion.div
+            variants={mainVariants}
             initial="hidden"
-            animate={textControls}
-            variants={textVariants}
+            animate={mainControls}
+            className="lg:w-[45%] flex-shrink-0"
           >
-            <motion.h1 
-              className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight"
-              variants={childTextVariants}
-            >
-              <motion.span 
-                className="text-gray-800"
-                variants={childTextVariants}
+            <motion.div variants={childVariants} className="space-y-6">
+              <motion.h1 
+                className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight"
+                variants={childVariants}
               >
-                Seamlessly Accept
-              </motion.span>
-              <br />
-              <motion.span 
-                className="text-teal-600"
-                variants={childTextVariants}
+                <span className="text-gray-900">The Payment Infrastructure for</span>
+                <br />
+                <span className="bg-gradient-to-r from-teal-600 to-teal-400 bg-clip-text text-transparent">
+                  Africa&apos;s Future
+                </span>
+              </motion.h1>
+              
+              <motion.p 
+                className="text-lg sm:text-xl text-gray-600 max-w-xl"
+                variants={childVariants}
               >
-                Payments
-              </motion.span>
-            </motion.h1>
-            <motion.p 
-              className="text-lg md:text-xl text-gray-600 mb-8"
-              variants={childTextVariants}
-            >
-              Connect your online businesses with multiple payment providers across Africa.
-            </motion.p>
-            <motion.div 
-              className="flex flex-col sm:flex-row gap-4"
-              variants={childTextVariants}
-            >
-              <Button asChild className="bg-teal-600 text-white hover:bg-teal-700 w-fit">
-                <Link href="#" className="flex items-center">
-                  Get Started
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
-              <Button asChild variant="outline" className="border-teal-600 bg-transparent text-teal-600 hover:bg-teal-50 w-fit">
-                <Link href="#" className="flex items-center">
-                  Documentation
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
+                Connect your business to multiple payment providers across Africa. Process payments, 
+                manage transactions, and scale your business with our unified platform.
+              </motion.p>
+
+              <motion.div 
+                className="flex flex-row gap-3 pt-4"
+                variants={childVariants}
+              >
+                <Button asChild size="default" className="bg-teal-600 hover:bg-teal-700 text-white px-4 sm:px-8 group">
+                  <Link href="#" className="flex items-center whitespace-nowrap">
+                    <span className="hidden sm:inline">Start Integration</span>
+                    <span className="sm:hidden">Start Now</span>
+                    <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5 transition-transform duration-300 group-hover:translate-x-1" />
+                  </Link>
+                </Button>
+                <Button 
+                  asChild 
+                  size="default"
+                  variant="outline" 
+                  className="border-teal-600 bg-white/80 backdrop-blur-sm text-teal-600 hover:bg-teal-50 px-4 sm:px-8 group"
+                >
+                  <Link href="#" className="flex items-center whitespace-nowrap">
+                    <span className="hidden sm:inline">View Documentation</span>
+                    <span className="sm:hidden">Docs</span>
+                    <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5 transition-transform duration-300 group-hover:translate-x-1" />
+                  </Link>
+                </Button>
+              </motion.div>
             </motion.div>
           </motion.div>
-          
-          {/* Right Column - Image */}
+
+          {/* Right Column - Illustration */}
           <motion.div 
-            className="md:w-1/2 mt-8 md:mt-0"
-            initial="hidden"
-            animate={imageControls}
-            variants={imageVariants}
+            className="lg:w-[55%] h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px] scale-90 sm:scale-100"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <div className="relative">
-              <Image
-                src="/images/image hero.png"
-                alt="PayUnit Payment Solutions"
-                width={720}
-                height={600}
-                className="w-full h-auto object-contain"
-                priority
-              />
+            <div className="block sm:hidden">
+              <HeroIllustrationMobile />
+            </div>
+            <div className="hidden sm:block">
+              <HeroIllustration />
             </div>
           </motion.div>
         </div>
       </div>
-      
-      {/* Scroll down indicator */}
-      <motion.div 
-        className="absolute bottom-4 left-1/2 transform -translate-x-1/2"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: isInView ? 1 : 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <motion.div 
-          className="w-10 h-10 rounded-full border-2 border-gray-400 flex items-center justify-center"
-          animate={{ y: [0, 8, 0] }}
-          transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" as const }}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-          </svg>
-        </motion.div>
-      </motion.div>
     </section>
   );
 } 

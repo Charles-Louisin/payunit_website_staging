@@ -12,6 +12,7 @@ export default function Navbar() {
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [activeMobileDropdown, setActiveMobileDropdown] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const dropdownTimerRef = useRef<{ [key: string]: NodeJS.Timeout }>({});
   const mobileButtonRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({
     product: null,
     useCases: null,
@@ -20,9 +21,11 @@ export default function Navbar() {
   });
   const [isProcessingClick, setIsProcessingClick] = useState(false);
 
-  // Close dropdown when clicking outside
+  // Close dropdown when clicking outside (only for mobile)
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
+      if (window.innerWidth >= 768) return; // Only handle clicks for mobile
+      
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setActiveDropdown(null);
       }
@@ -44,6 +47,38 @@ export default function Navbar() {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isMenuOpen]);
+
+  // Handle hover for desktop dropdowns
+  const handleDropdownHover = (dropdown: string | null) => {
+    if (window.innerWidth < 768) return; // Only handle hover for desktop
+
+    // Clear any existing timers for this dropdown
+    Object.keys(dropdownTimerRef.current).forEach(key => {
+      clearTimeout(dropdownTimerRef.current[key]);
+      delete dropdownTimerRef.current[key];
+    });
+
+    if (dropdown) {
+      // Open immediately on hover
+      setActiveDropdown(dropdown);
+    } else {
+      // Add a small delay before closing
+      dropdownTimerRef.current['close'] = setTimeout(() => {
+        setActiveDropdown(null);
+      }, 100); // 100ms delay before closing
+    }
+  };
+
+  // Handle mouse enter on dropdown content
+  const handleDropdownContentHover = () => {
+    if (window.innerWidth < 768) return;
+    
+    // Clear closing timer if it exists
+    if (dropdownTimerRef.current['close']) {
+      clearTimeout(dropdownTimerRef.current['close']);
+      delete dropdownTimerRef.current['close'];
+    }
+  };
 
   // Close mobile menu when resizing to desktop
   useEffect(() => {
@@ -94,164 +129,339 @@ export default function Navbar() {
   const dropdownVariants: Variants = {
     hidden: { 
       opacity: 0,
-      y: -5,
-      scale: 0.95,
-      transition: { duration: 0.2, ease: "easeInOut" as any }
+      y: -2,
+      scale: 0.98,
+      transition: { 
+        duration: 0.15,
+        ease: [0.4, 0, 0.2, 1]
+      }
     },
     visible: { 
       opacity: 1,
       y: 0,
       scale: 1,
-      transition: { duration: 0.3, ease: "easeOut" as any }
+      transition: { 
+        duration: 0.2,
+        ease: [0, 0, 0.2, 1]
+      }
     }
   };
 
   // Mobile menu animation variants
   const mobileMenuVariants: Variants = {
     hidden: { 
-      height: 0,
       opacity: 0,
-      transition: { duration: 0.3, ease: "easeInOut" as any }
+      height: 0,
+      transition: { 
+        duration: 0.2,
+        ease: [0.4, 0, 0.2, 1]
+      }
     },
     visible: { 
-      height: "auto",
       opacity: 1,
-      transition: { duration: 0.3, ease: "easeOut" as any }
+      height: "auto",
+      transition: { 
+        duration: 0.3,
+        ease: [0, 0, 0.2, 1]
+      }
     }
   };
 
-  // Shared dropdown content for both desktop and mobile
+  // Hover animation for dropdown items
+  const itemVariants: Variants = {
+    hidden: { 
+      opacity: 0,
+      x: -4,
+      transition: { 
+        duration: 0.15,
+        ease: [0.4, 0, 0.2, 1]
+      }
+    },
+    visible: { 
+      opacity: 1,
+      x: 0,
+      transition: { 
+        duration: 0.2,
+        ease: [0, 0, 0.2, 1]
+      }
+    }
+  };
+
+  // Stagger children animation
+  const containerVariants: Variants = {
+    hidden: { 
+      opacity: 0,
+      transition: { 
+        staggerChildren: 0.05,
+        staggerDirection: -1
+      }
+    },
+    visible: { 
+      opacity: 1,
+      transition: { 
+        delayChildren: 0.1,
+        staggerChildren: 0.05
+      }
+    }
+  };
+
   const renderProductDropdown = () => (
-    <div className="p-4">
-      <Link href="#" className="block mb-4">
-        <div className="font-medium text-lg">Our Products</div>
-        <div className="text-sm text-gray-500">Discover PayUnit's payment solutions</div>
+    <motion.div 
+      className="p-4"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
+      <motion.div variants={itemVariants}>
+        <Link href="#" className="block mb-4 group">
+          <div className="font-medium text-lg text-gray-900 group-hover:text-teal-600 transition-colors">Our Products</div>
+          <div className="text-sm text-gray-500 group-hover:text-gray-600 transition-colors">Discover PayUnit's payment solutions</div>
       </Link>
+      </motion.div>
       
       <div className="grid grid-cols-1 gap-2">
-        <Link href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-teal-600 hover:text-white rounded-md transition-colors duration-200">
-          <div className="font-medium">Payment</div>
-          <div className="text-xs">Online Payment</div>
+        <motion.div variants={itemVariants}>
+          <Link href="#" className="block px-4 py-3 text-sm rounded-lg hover:bg-teal-50/80 transition-all duration-200 group">
+            <div className="font-medium text-gray-900 group-hover:text-teal-600 flex items-center">
+              <span className="mr-2">💳</span>
+              Payment
+            </div>
+            <div className="text-xs text-gray-500 group-hover:text-gray-600 ml-6">Online Payment</div>
         </Link>
-        <Link href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-teal-600 hover:text-white rounded-md transition-colors duration-200">
-          <div className="font-medium">Checkout</div>
-          <div className="text-xs">Pre-built payments page</div>
+        </motion.div>
+
+        <motion.div variants={itemVariants}>
+          <Link href="#" className="block px-4 py-3 text-sm rounded-lg hover:bg-teal-50/80 transition-all duration-200 group">
+            <div className="font-medium text-gray-900 group-hover:text-teal-600 flex items-center">
+              <span className="mr-2">🛍️</span>
+              Checkout
+            </div>
+            <div className="text-xs text-gray-500 group-hover:text-gray-600 ml-6">Pre-built payments page</div>
         </Link>
-        <Link href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-teal-600 hover:text-white rounded-md transition-colors duration-200">
-          <div className="font-medium">Payment Links</div>
-          <div className="text-xs">No-code payment</div>
+        </motion.div>
+
+        <motion.div variants={itemVariants}>
+          <Link href="#" className="block px-4 py-3 text-sm rounded-lg hover:bg-teal-50/80 transition-all duration-200 group">
+            <div className="font-medium text-gray-900 group-hover:text-teal-600 flex items-center">
+              <span className="mr-2">🔗</span>
+              Payment Links
+            </div>
+            <div className="text-xs text-gray-500 group-hover:text-gray-600 ml-6">No-code payment</div>
         </Link>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 
   const renderUseCasesDropdown = () => (
-    <div className="p-4">
-      <Link href="#" className="block mb-4">
-        <div className="font-medium text-lg">Use Cases</div>
-        <div className="text-sm text-gray-500">Solutions for different business types</div>
+    <motion.div 
+      className="p-4"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
+      <motion.div variants={itemVariants}>
+        <Link href="#" className="block mb-4 group">
+          <div className="font-medium text-lg text-gray-900 group-hover:text-teal-600 transition-colors">Use Cases</div>
+          <div className="text-sm text-gray-500 group-hover:text-gray-600 transition-colors">Solutions for different business types</div>
       </Link>
+      </motion.div>
       
       <div className="grid grid-cols-1 gap-2">
-        <Link href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-teal-600 hover:text-white rounded-md transition-colors duration-200">
-          <div className="font-medium">Ecommerce</div>
-          <div className="text-xs">Online Payment</div>
+        <motion.div variants={itemVariants}>
+          <Link href="#" className="block px-4 py-3 text-sm rounded-lg hover:bg-teal-50/80 transition-all duration-200 group">
+            <div className="font-medium text-gray-900 group-hover:text-teal-600 flex items-center">
+              <span className="mr-2">🛒</span>
+              Ecommerce
+            </div>
+            <div className="text-xs text-gray-500 group-hover:text-gray-600 ml-6">Online stores and retail</div>
         </Link>
-        <Link href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-teal-600 hover:text-white rounded-md transition-colors duration-200">
-          <div className="font-medium">SaaS</div>
-          <div className="text-xs">Pre-built payments page</div>
+        </motion.div>
+
+        <motion.div variants={itemVariants}>
+          <Link href="#" className="block px-4 py-3 text-sm rounded-lg hover:bg-teal-50/80 transition-all duration-200 group">
+            <div className="font-medium text-gray-900 group-hover:text-teal-600 flex items-center">
+              <span className="mr-2">⚡</span>
+              SaaS
+            </div>
+            <div className="text-xs text-gray-500 group-hover:text-gray-600 ml-6">Software and services</div>
         </Link>
-        <Link href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-teal-600 hover:text-white rounded-md transition-colors duration-200">
-          <div className="font-medium">Marketplaces</div>
-          <div className="text-xs">No-code payment</div>
+        </motion.div>
+
+        <motion.div variants={itemVariants}>
+          <Link href="#" className="block px-4 py-3 text-sm rounded-lg hover:bg-teal-50/80 transition-all duration-200 group">
+            <div className="font-medium text-gray-900 group-hover:text-teal-600 flex items-center">
+              <span className="mr-2">🏪</span>
+              Marketplaces
+            </div>
+            <div className="text-xs text-gray-500 group-hover:text-gray-600 ml-6">Multi-vendor platforms</div>
         </Link>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 
   const renderLearnDropdown = () => (
-    <div className="p-4">
-      <Link href="#" className="block mb-4">
-        <div className="font-medium text-lg">Learn</div>
-        <div className="text-sm text-gray-500">Resources to help you get the most from PayUnit</div>
+    <motion.div 
+      className="p-4"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
+      <motion.div variants={itemVariants}>
+        <Link href="#" className="block mb-4 group">
+          <div className="font-medium text-lg text-gray-900 group-hover:text-teal-600 transition-colors">Learn</div>
+          <div className="text-sm text-gray-500 group-hover:text-gray-600 transition-colors">Resources to help you get the most from PayUnit</div>
       </Link>
+      </motion.div>
       
       <div className="grid grid-cols-1 gap-2">
-        <Link href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-teal-600 hover:text-white rounded-md transition-colors duration-200">
-          <div className="font-medium">Help Center</div>
-          <div className="text-xs">Contact us for any isssues you have</div>
+        <motion.div variants={itemVariants}>
+          <Link href="#" className="block px-4 py-3 text-sm rounded-lg hover:bg-teal-50/80 transition-all duration-200 group">
+            <div className="font-medium text-gray-900 group-hover:text-teal-600 flex items-center">
+              <span className="mr-2">💡</span>
+              Help Center
+            </div>
+            <div className="text-xs text-gray-500 group-hover:text-gray-600 ml-6">Contact us for any issues you have</div>
         </Link>
-        <Link href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-teal-600 hover:text-white rounded-md transition-colors duration-200">
-          <div className="font-medium">Blog</div>
-          <div className="text-xs">Read our feed on how to best use PayUnit</div>
+        </motion.div>
+
+        <motion.div variants={itemVariants}>
+          <Link href="#" className="block px-4 py-3 text-sm rounded-lg hover:bg-teal-50/80 transition-all duration-200 group">
+            <div className="font-medium text-gray-900 group-hover:text-teal-600 flex items-center">
+              <span className="mr-2">📝</span>
+              Blog
+            </div>
+            <div className="text-xs text-gray-500 group-hover:text-gray-600 ml-6">Read our feed on how to best use PayUnit</div>
         </Link>
+        </motion.div>
+
+        <motion.div variants={itemVariants}>
         <div className="px-4 py-2">
-          <Link href="#" className="inline-flex items-center border border-teal-600 hover:bg-white px-4 py-1 rounded-md text-sm bg-teal-600 text-white hover:text-teal-600 transition-colors duration-200">
+            <Link href="#" className="inline-flex items-center px-4 py-2 rounded-lg text-sm bg-teal-600 text-white hover:bg-teal-700 transition-all duration-200 group">
             Go To Learn
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-2" viewBox="0 0 20 20" fill="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-2 transition-transform group-hover:translate-x-0.5" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
             </svg>
           </Link>
         </div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 
   const renderDeveloperDropdown = () => (
-    <div className="p-4">
-      <Link href="#" className="block mb-4">
-        <div className="font-medium text-lg">Documentation</div>
-        <div className="text-sm text-gray-500">Start integrating Payunit's products and tools</div>
+    <motion.div 
+      className="p-4"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
+      <motion.div variants={itemVariants}>
+        <Link href="#" className="block mb-4 group">
+          <div className="font-medium text-lg text-gray-900 group-hover:text-teal-600 transition-colors">Documentation</div>
+          <div className="text-sm text-gray-500 group-hover:text-gray-600 transition-colors">Start integrating PayUnit's products and tools</div>
       </Link>
+      </motion.div>
       
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <h4 className="text-gray-900 uppercase text-xs font-semibold mb-2">GET STARTED</h4>
-          <ul className="space-y-2">
-            <li><Link href="#" className="text-sm text-gray-700 hover:text-teal-600 rounded-md block px-2 py-1 hover:bg-gray-50 transition-colors duration-200">Prebuilt checkout</Link></li>
-            <li><Link href="#" className="text-sm text-gray-700 hover:text-teal-600 rounded-md block px-2 py-1 hover:bg-gray-50 transition-colors duration-200">Libraries and SDKs</Link></li>
-            <li><Link href="#" className="text-sm text-gray-700 hover:text-teal-600 rounded-md block px-2 py-1 hover:bg-gray-50 transition-colors duration-200">Plugins</Link></li>
-            <li><Link href="#" className="text-sm text-gray-700 hover:text-teal-600 rounded-md block px-2 py-1 hover:bg-gray-50 transition-colors duration-200">Code samples</Link></li>
+      <div className="grid grid-cols-2 gap-6">
+        <motion.div variants={itemVariants}>
+          <h4 className="text-gray-900 uppercase text-xs font-semibold mb-3 px-4">Get Started</h4>
+          <ul className="space-y-1">
+            <li>
+              <Link href="#" className="flex items-center text-sm text-gray-600 hover:text-teal-600 rounded-lg px-4 py-2 hover:bg-teal-50/80 transition-all duration-200">
+                <span className="mr-2">🚀</span>
+                Prebuilt checkout
+              </Link>
+            </li>
+            <li>
+              <Link href="#" className="flex items-center text-sm text-gray-600 hover:text-teal-600 rounded-lg px-4 py-2 hover:bg-teal-50/80 transition-all duration-200">
+                <span className="mr-2">📚</span>
+                Libraries and SDKs
+              </Link>
+            </li>
+            <li>
+              <Link href="#" className="flex items-center text-sm text-gray-600 hover:text-teal-600 rounded-lg px-4 py-2 hover:bg-teal-50/80 transition-all duration-200">
+                <span className="mr-2">🔌</span>
+                Plugins
+              </Link>
+            </li>
+            <li>
+              <Link href="#" className="flex items-center text-sm text-gray-600 hover:text-teal-600 rounded-lg px-4 py-2 hover:bg-teal-50/80 transition-all duration-200">
+                <span className="mr-2">💻</span>
+                Code samples
+              </Link>
+            </li>
           </ul>
-        </div>
-        <div>
-          <h4 className="text-gray-900 uppercase text-xs font-semibold mb-2">GUIDES</h4>
-          <ul className="space-y-2">
-            <li><Link href="#" className="text-sm text-gray-700 hover:text-teal-600 rounded-md block px-2 py-1 hover:bg-gray-50 transition-colors duration-200">Accept online payments</Link></li>
-            <li><Link href="#" className="text-sm text-gray-700 hover:text-teal-600 rounded-md block px-2 py-1 hover:bg-gray-50 transition-colors duration-200">Add More provider</Link></li>
-            <li><Link href="#" className="text-sm text-gray-700 hover:text-teal-600 rounded-md block px-2 py-1 hover:bg-gray-50 transition-colors duration-200">Create an payment link</Link></li>
+        </motion.div>
+
+        <motion.div variants={itemVariants}>
+          <h4 className="text-gray-900 uppercase text-xs font-semibold mb-3 px-4">Guides</h4>
+          <ul className="space-y-1">
+            <li>
+              <Link href="#" className="flex items-center text-sm text-gray-600 hover:text-teal-600 rounded-lg px-4 py-2 hover:bg-teal-50/80 transition-all duration-200">
+                <span className="mr-2">💳</span>
+                Accept online payments
+              </Link>
+            </li>
+            <li>
+              <Link href="#" className="flex items-center text-sm text-gray-600 hover:text-teal-600 rounded-lg px-4 py-2 hover:bg-teal-50/80 transition-all duration-200">
+                <span className="mr-2">➕</span>
+                Add More provider
+              </Link>
+            </li>
+            <li>
+              <Link href="#" className="flex items-center text-sm text-gray-600 hover:text-teal-600 rounded-lg px-4 py-2 hover:bg-teal-50/80 transition-all duration-200">
+                <span className="mr-2">🔗</span>
+                Create a payment link
+              </Link>
+            </li>
           </ul>
-        </div>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 
   return (
-    <nav className="bg-white border-b border-gray-100 fixed top-0 left-0 right-0 z-50 shadow-sm">
-      <div className="container mx-auto px-4 flex items-center justify-between h-16">
+    <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-white/70 border-b border-gray-100/50 supports-[backdrop-filter]:bg-white/70">
+      <div className="container mx-auto px-4 flex items-center justify-between h-[72px]">
         {/* Logo */}
         <div className="flex-shrink-0">
-          <Link href="/">
+          <Link href="/" className="relative group cursor-pointer">
             <Image 
               src="/images/logo payunit.png" 
               alt="PayUnit Logo" 
               width={120} 
               height={40}
-              className="h-8 w-auto"
+              className="h-8 w-auto transition-transform duration-200 group-hover:scale-[1.02]"
             />
           </Link>
         </div>
         
         {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center space-x-1 flex-1 justify-center" ref={dropdownRef}>
-          <div className="relative px-3">
+        <div className="hidden md:flex items-center space-x-2 flex-1 justify-center" ref={dropdownRef}>
+          <div 
+            className="relative px-2"
+            onMouseEnter={() => handleDropdownHover('product')}
+            onMouseLeave={() => handleDropdownHover(null)}
+          >
             <button 
-              onClick={() => toggleDropdown('product')}
-              className={`flex items-center font-medium transition-colors duration-200 ${activeDropdown === 'product' ? 'text-white bg-teal-600 px-3 py-2 rounded' : 'text-gray-800 hover:text-teal-600'}`}
+              className={`
+                flex items-center text-sm font-bold px-3 py-2 rounded-full transition-all duration-200 cursor-pointer
+                ${activeDropdown === 'product' 
+                  ? 'text-teal-700' 
+                  : 'text-gray-600 hover:text-teal-600'
+                }
+              `}
             >
-              Product
-              <svg xmlns="http://www.w3.org/2000/svg" className={`h-4 w-4 ml-1 transition-transform duration-200 ${activeDropdown === 'product' ? 'rotate-180' : ''}`} viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+              Products
+              <svg 
+                className={`ml-1 h-4 w-4 transition-transform duration-200 ${activeDropdown === 'product' ? 'rotate-180' : ''}`} 
+                xmlns="http://www.w3.org/2000/svg" 
+                viewBox="0 0 20 20" 
+                fill="currentColor"
+              >
+                <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
               </svg>
             </button>
             
@@ -262,7 +472,9 @@ export default function Navbar() {
                   animate="visible"
                   exit="hidden"
                   variants={dropdownVariants}
-                  className="absolute left-0 mt-2 w-80 bg-white rounded-md shadow-lg py-2 z-50 border border-gray-100"
+                  className="absolute top-full left-0 mt-1 w-[320px] bg-white rounded-xl shadow-lg border border-gray-100/50 backdrop-blur-lg backdrop-saturate-150 bg-white/95"
+                  onMouseEnter={handleDropdownContentHover}
+                  onMouseLeave={() => handleDropdownHover(null)}
                 >
                   {renderProductDropdown()}
                 </motion.div>
@@ -270,14 +482,29 @@ export default function Navbar() {
             </AnimatePresence>
           </div>
           
-          <div className="relative px-3">
+          {/* Repeat similar changes for other nav items */}
+          <div 
+            className="relative px-2"
+            onMouseEnter={() => handleDropdownHover('useCases')}
+            onMouseLeave={() => handleDropdownHover(null)}
+          >
             <button 
-              onClick={() => toggleDropdown('useCases')}
-              className={`flex items-center font-medium transition-colors duration-200 ${activeDropdown === 'useCases' ? 'text-white bg-teal-600 px-3 py-2 rounded' : 'text-gray-800 hover:text-teal-600'}`}
+              className={`
+                flex items-center text-sm font-bold px-3 py-2 rounded-full transition-all duration-200 cursor-pointer
+                ${activeDropdown === 'useCases' 
+                  ? 'text-teal-700' 
+                  : 'text-gray-600 hover:text-teal-600 hover:bg-teal-100/50'
+                }
+              `}
             >
               Use Cases
-              <svg xmlns="http://www.w3.org/2000/svg" className={`h-4 w-4 ml-1 transition-transform duration-200 ${activeDropdown === 'useCases' ? 'rotate-180' : ''}`} viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+              <svg 
+                className={`ml-1 h-4 w-4 transition-transform duration-200 ${activeDropdown === 'useCases' ? 'rotate-180' : ''}`} 
+                xmlns="http://www.w3.org/2000/svg" 
+                viewBox="0 0 20 20" 
+                fill="currentColor"
+              >
+                <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
               </svg>
             </button>
             
@@ -288,7 +515,9 @@ export default function Navbar() {
                   animate="visible"
                   exit="hidden"
                   variants={dropdownVariants}
-                  className="absolute left-0 mt-2 w-80 bg-white rounded-md shadow-lg py-2 z-50 border border-gray-100"
+                  className="absolute top-full left-0 mt-1 w-[320px] bg-white rounded-xl shadow-lg border border-gray-100/50 backdrop-blur-lg backdrop-saturate-150 bg-white/95"
+                  onMouseEnter={handleDropdownContentHover}
+                  onMouseLeave={() => handleDropdownHover(null)}
                 >
                   {renderUseCasesDropdown()}
                 </motion.div>
@@ -296,14 +525,28 @@ export default function Navbar() {
             </AnimatePresence>
           </div>
           
-          <div className="relative px-3">
+          <div 
+            className="relative px-2"
+            onMouseEnter={() => handleDropdownHover('learn')}
+            onMouseLeave={() => handleDropdownHover(null)}
+          >
             <button 
-              onClick={() => toggleDropdown('learn')}
-              className={`flex items-center font-medium transition-colors duration-200 ${activeDropdown === 'learn' ? 'text-white bg-teal-600 px-3 py-2 rounded' : 'text-gray-800 hover:text-teal-600'}`}
+              className={`
+                flex items-center text-sm font-bold px-3 py-2 rounded-full transition-all duration-200 cursor-pointer
+                ${activeDropdown === 'learn' 
+                  ? 'text-teal-700' 
+                  : 'text-gray-600 hover:text-teal-600 hover:bg-teal-100/50'
+                }
+              `}
             >
               Learn
-              <svg xmlns="http://www.w3.org/2000/svg" className={`h-4 w-4 ml-1 transition-transform duration-200 ${activeDropdown === 'learn' ? 'rotate-180' : ''}`} viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+              <svg 
+                className={`ml-1 h-4 w-4 transition-transform duration-200 ${activeDropdown === 'learn' ? 'rotate-180' : ''}`} 
+                xmlns="http://www.w3.org/2000/svg" 
+                viewBox="0 0 20 20" 
+                fill="currentColor"
+              >
+                <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
               </svg>
             </button>
             
@@ -314,7 +557,9 @@ export default function Navbar() {
                   animate="visible"
                   exit="hidden"
                   variants={dropdownVariants}
-                  className="absolute left-0 mt-2 w-80 bg-white rounded-md shadow-lg py-2 z-50 border border-gray-100"
+                  className="absolute top-full left-0 mt-1 w-[320px] bg-white rounded-xl shadow-lg border border-gray-100/50 backdrop-blur-lg backdrop-saturate-150 bg-white/95"
+                  onMouseEnter={handleDropdownContentHover}
+                  onMouseLeave={() => handleDropdownHover(null)}
                 >
                   {renderLearnDropdown()}
                 </motion.div>
@@ -322,14 +567,28 @@ export default function Navbar() {
             </AnimatePresence>
           </div>
           
-          <div className="relative px-3">
+          <div 
+            className="relative px-2"
+            onMouseEnter={() => handleDropdownHover('developer')}
+            onMouseLeave={() => handleDropdownHover(null)}
+          >
             <button 
-              onClick={() => toggleDropdown('developer')}
-              className={`flex items-center font-medium transition-colors duration-200 ${activeDropdown === 'developer' ? 'text-white bg-teal-600 px-3 py-2 rounded' : 'text-gray-800 hover:text-teal-600'}`}
+              className={`
+                flex items-center text-sm font-bold px-3 py-2 rounded-full transition-all duration-200 cursor-pointer
+                ${activeDropdown === 'developer' 
+                  ? 'text-teal-700' 
+                  : 'text-gray-600 hover:text-teal-600 hover:bg-teal-100/50'
+                }
+              `}
             >
-              Developer
-              <svg xmlns="http://www.w3.org/2000/svg" className={`h-4 w-4 ml-1 transition-transform duration-200 ${activeDropdown === 'developer' ? 'rotate-180' : ''}`} viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+              Developers
+              <svg 
+                className={`ml-1 h-4 w-4 transition-transform duration-200 ${activeDropdown === 'developer' ? 'rotate-180' : ''}`} 
+                xmlns="http://www.w3.org/2000/svg" 
+                viewBox="0 0 20 20" 
+                fill="currentColor"
+              >
+                <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
               </svg>
             </button>
             
@@ -340,48 +599,64 @@ export default function Navbar() {
                   animate="visible"
                   exit="hidden"
                   variants={dropdownVariants}
-                  className="absolute left-0 mt-2 w-96 bg-white rounded-md shadow-lg py-2 z-50 border border-gray-100"
+                  className="absolute top-full left-0 mt-1 w-[480px] bg-white rounded-xl shadow-lg border border-gray-100/50 backdrop-blur-lg backdrop-saturate-150 bg-white/95"
+                  onMouseEnter={handleDropdownContentHover}
+                  onMouseLeave={() => handleDropdownHover(null)}
                 >
                   {renderDeveloperDropdown()}
                 </motion.div>
               )}
             </AnimatePresence>
           </div>
-          
-          <div className="relative px-3">
-            <Link href="#" className="text-gray-800 hover:text-teal-600 font-medium transition-colors duration-200">
-              Pricing
-            </Link>
-          </div>
         </div>
         
-        {/* Desktop Call to Action Buttons */}
-        <div className="hidden md:flex items-center">
-          <Button className="bg-teal-600 text-white hover:bg-teal-700 px-4 py-2 h-auto rounded flex items-center transition-colors duration-200">
-            Sign In <LogIn className="ml-1 h-4 w-4" />
+        {/* Sign In and Contact Button */}
+        <div className="hidden md:flex items-center space-x-4">
+          <Link 
+            href="/signin" 
+            className="group flex items-center text-sm font-medium text-gray-600 hover:text-teal-600 transition-all duration-300 cursor-pointer"
+          >
+            Sign in
+            <LogIn className="w-4 h-4 ml-1 transition-all duration-300 group-hover:ml-2" />
+          </Link>
+          <Button className="group bg-teal-600 hover:bg-teal-700 text-white rounded-full transition-all duration-300 cursor-pointer flex items-center">
+            Contact Us
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-0 h-4 opacity-0 transition-all duration-300 group-hover:w-4 group-hover:opacity-100 group-hover:ml-2"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+              />
+            </svg>
           </Button>
         </div>
         
-        {/* Mobile Menu Button */}
+        {/* Mobile menu button */}
         <div className="md:hidden">
           <button 
             onClick={() => setIsMenuOpen(!isMenuOpen)} 
-            className="text-gray-600 hover:text-teal-600 transition-colors duration-200"
+            className="text-gray-600 hover:text-teal-600 transition-colors duration-200 cursor-pointer"
           >
             {isMenuOpen ? (
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             )}
           </button>
-        </div>
       </div>
       
-      {/* Mobile Menu */}
+        {/* Mobile menu */}
       <AnimatePresence>
         {isMenuOpen && (
           <motion.div
@@ -389,123 +664,72 @@ export default function Navbar() {
             animate="visible"
             exit="hidden"
             variants={mobileMenuVariants}
-            className="md:hidden bg-white border-t border-gray-200 overflow-hidden mobile-menu"
+              className="absolute top-full left-0 right-0 bg-white border-b border-gray-100 md:hidden mobile-menu"
           >
-            <div className="px-4 py-2 space-y-3">
-              {/* Product */}
-              <div className="border-b border-gray-100 pb-2">
+              <div className="px-4 py-2 space-y-1">
                 <button 
-                  className={`w-full text-left font-medium py-2 px-3 rounded-md flex justify-between items-center ${activeMobileDropdown === 'product' ? 'bg-teal-50 text-teal-600' : 'bg-white text-gray-800'}`}
-                  onClick={() => toggleMobileDropdown('product')}
+                  onClick={() => handleMobileMenuClick('product')}
+                  className="w-full text-left px-3 py-2 text-sm font-bold text-gray-600 hover:text-teal-600 hover:bg-teal-100/50 rounded-lg transition-all duration-200 cursor-pointer"
                 >
-                  <span>Product</span>
-                  {activeMobileDropdown === 'product' ? (
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" />
-                    </svg>
-                  ) : (
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                    </svg>
-                  )}
+                  Products
                 </button>
-                
-                {activeMobileDropdown === 'product' && (
-                  <div className="mt-2 pl-2 py-2">
-                    {renderProductDropdown()}
-                  </div>
-                )}
-              </div>
-              
-              {/* Use Cases */}
-              <div className="border-b border-gray-100 pb-2">
+                {activeMobileDropdown === 'product' && renderProductDropdown()}
+
                 <button 
-                  className={`w-full text-left font-medium py-2 px-3 rounded-md flex justify-between items-center ${activeMobileDropdown === 'useCases' ? 'bg-teal-50 text-teal-600' : 'bg-white text-gray-800'}`}
-                  onClick={() => toggleMobileDropdown('useCases')}
+                  onClick={() => handleMobileMenuClick('useCases')}
+                  className="w-full text-left px-3 py-2 text-sm font-bold text-gray-600 hover:text-teal-600 hover:bg-teal-100/50 rounded-lg transition-all duration-200 cursor-pointer"
                 >
-                  <span>Use Cases</span>
-                  {activeMobileDropdown === 'useCases' ? (
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" />
-                    </svg>
-                  ) : (
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                    </svg>
-                  )}
+                  Use Cases
                 </button>
-                
-                {activeMobileDropdown === 'useCases' && (
-                  <div className="mt-2 pl-2 py-2">
-                    {renderUseCasesDropdown()}
-                  </div>
-                )}
-              </div>
-              
-              {/* Learn */}
-              <div className="border-b border-gray-100 pb-2">
+                {activeMobileDropdown === 'useCases' && renderUseCasesDropdown()}
+
                 <button 
-                  className={`w-full text-left font-medium py-2 px-3 rounded-md flex justify-between items-center ${activeMobileDropdown === 'learn' ? 'bg-teal-50 text-teal-600' : 'bg-white text-gray-800'}`}
-                  onClick={() => toggleMobileDropdown('learn')}
+                  onClick={() => handleMobileMenuClick('learn')}
+                  className="w-full text-left px-3 py-2 text-sm font-bold text-gray-600 hover:text-teal-600 hover:bg-teal-100/50 rounded-lg transition-all duration-200 cursor-pointer"
                 >
-                  <span>Learn</span>
-                  {activeMobileDropdown === 'learn' ? (
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" />
-                    </svg>
-                  ) : (
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                    </svg>
-                  )}
+                  Learn
                 </button>
-                
-                {activeMobileDropdown === 'learn' && (
-                  <div className="mt-2 pl-2 py-2">
-                    {renderLearnDropdown()}
-                  </div>
-                )}
-              </div>
-              
-              {/* Developer */}
-              <div className="border-b border-gray-100 pb-2">
+                {activeMobileDropdown === 'learn' && renderLearnDropdown()}
+
                 <button 
-                  className={`w-full text-left font-medium py-2 px-3 rounded-md flex justify-between items-center ${activeMobileDropdown === 'developer' ? 'bg-teal-50 text-teal-600' : 'bg-white text-gray-800'}`}
-                  onClick={() => toggleMobileDropdown('developer')}
+                  onClick={() => handleMobileMenuClick('developer')}
+                  className="w-full text-left px-3 py-2 text-sm font-bold text-gray-600 hover:text-teal-600 hover:bg-teal-100/50 rounded-lg transition-all duration-200 cursor-pointer"
                 >
-                  <span>Developer</span>
-                  {activeMobileDropdown === 'developer' ? (
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" />
-                    </svg>
-                  ) : (
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                    </svg>
-                  )}
+                  Developers
                 </button>
-                
-                {activeMobileDropdown === 'developer' && (
-                  <div className="mt-2 pl-2 py-2">
-                    {renderDeveloperDropdown()}
-                  </div>
-                )}
-              </div>
-              
-              {/* Pricing */}
-              <Link href="#" className="block py-2 text-gray-800 hover:text-teal-600 transition-colors duration-200 px-3">
-                Pricing
+                {activeMobileDropdown === 'developer' && renderDeveloperDropdown()}
+
+                <div className="pt-4 pb-2 border-t border-gray-100">
+                  <Link
+                    href="/signin"
+                    className="group flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-teal-600 transition-all duration-300 cursor-pointer"
+                  >
+                    Sign in
+                    <LogIn className="w-4 h-4 ml-1 transition-all duration-300 group-hover:ml-2" />
               </Link>
-              
-              <div className="pt-4 pb-2 border-t border-gray-200">
-                <Button className="w-full justify-center bg-teal-600 text-white hover:bg-teal-700 py-2 h-auto rounded flex items-center transition-colors duration-200">
-                  Sign In <LogIn className="ml-1 h-4 w-4" />
+                  <Button className="group w-full mt-2 bg-teal-600 hover:bg-teal-700 text-white rounded-full transition-all duration-300 cursor-pointer flex items-center justify-center">
+                    Contact Us
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="w-0 h-4 opacity-0 transition-all duration-300 group-hover:w-4 group-hover:opacity-100 group-hover:ml-2"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                      />
+                    </svg>
                 </Button>
               </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
+      </div>
     </nav>
   );
 } 
