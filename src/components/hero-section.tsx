@@ -8,7 +8,11 @@ import { HeroIllustrationMobile } from "./hero-illustration-mobile";
 
 export default function HeroSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
-  const isInView = useInView(sectionRef, { once: false, amount: 0.15 });
+  const isInView = useInView(sectionRef, { 
+    once: false, 
+    amount: 0.15,
+    margin: "0px 0px -200px 0px" // Trigger animation earlier
+  });
   
   const mainControls = useAnimation();
   
@@ -21,23 +25,56 @@ export default function HeroSection() {
   }, [isInView, mainControls]);
   
   const mainVariants: Variants = {
-    hidden: { opacity: 0 },
+    hidden: { 
+      opacity: 0,
+      y: 40
+    },
     visible: {
       opacity: 1,
+      y: 0,
       transition: {
-        duration: 0.6,
+        duration: 0.8,
+        ease: [0.215, 0.610, 0.355, 1.000], // Custom easing
         when: "beforeChildren",
-        staggerChildren: 0.1
+        staggerChildren: 0.15
       }
     }
   };
   
   const childVariants: Variants = {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { 
+      opacity: 0, 
+      y: 30,
+      scale: 0.95
+    },
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.5, ease: [0.645, 0.045, 0.355, 1] }
+      scale: 1,
+      transition: { 
+        duration: 0.6, 
+        ease: [0.215, 0.610, 0.355, 1.000]
+      }
+    }
+  };
+
+  const illustrationVariants: Variants = {
+    hidden: { 
+      opacity: 0, 
+      x: 40,
+      scale: 0.95,
+      rotate: -2
+    },
+    visible: {
+      opacity: 1,
+      x: 0,
+      scale: 1,
+      rotate: 0,
+      transition: { 
+        duration: 1,
+        ease: [0.215, 0.610, 0.355, 1.000],
+        delay: 0.2
+      }
     }
   };
 
@@ -53,7 +90,7 @@ export default function HeroSection() {
   return (
     <section 
       ref={sectionRef} 
-      className="relative min-h-[90vh] flex items-center overflow-hidden bg-gradient-to-br from-gray-50 via-teal-50/30 to-white mt-8 md:mt-0"
+      className="relative h-auto md:h-[90vh] flex items-center overflow-hidden bg-gradient-to-br from-gray-50 via-teal-50/30 to-white pt-6 pb-0 md:py-0"
     >
       <div 
         className="absolute inset-0 -z-10" 
@@ -72,7 +109,7 @@ export default function HeroSection() {
             variants={mainVariants}
             initial="hidden"
             animate={mainControls}
-            className="lg:w-[45%] flex-shrink-0"
+            className="lg:w-[45%] flex-shrink-0 pt-4 md:pt-0"
           >
             <motion.div variants={childVariants} className="space-y-6">
               <motion.h1 
@@ -123,10 +160,10 @@ export default function HeroSection() {
 
           {/* Right Column - Illustration */}
           <motion.div 
-            className="lg:w-[55%] h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px] scale-90 sm:scale-100"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
+            className="lg:w-[55%] h-[300px] sm:h-[400px] md:h-[500px] lg:h-[550px] scale-90 sm:scale-100"
+            variants={illustrationVariants}
+            initial="hidden"
+            animate={mainControls}
           >
             <div className="block sm:hidden">
               <HeroIllustrationMobile />
