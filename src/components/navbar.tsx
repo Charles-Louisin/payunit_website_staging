@@ -231,7 +231,7 @@ export default function Navbar() {
         </motion.div>
 
         <motion.div variants={itemVariants}>
-          <Link href="#" className="block px-4 py-3 text-sm rounded-lg hover:bg-teal-50/80 transition-all duration-200 group">
+          <Link href="/checkout" className="block px-4 py-3 text-sm rounded-lg hover:bg-teal-50/80 transition-all duration-200 group">
             <div className="font-medium text-gray-900 group-hover:text-teal-600 flex items-center">
               <span className="mr-2">🛍️</span>
               Checkout
@@ -424,7 +424,7 @@ export default function Navbar() {
 
   return (
     <nav 
-      className="mb-0 md:mb-16 w-full bg-gradient-to-br from-gray-50 via-teal-50/30 to-white relative z-[999]"
+      className="mb-0 md:mb-16 w-full bg-transparent relative z-[999]"
     >
       <div className="container mx-auto px-4 flex items-center justify-between h-[72px]">
         {/* Logo */}
@@ -666,12 +666,12 @@ export default function Navbar() {
             animate="visible"
             exit="hidden"
             variants={mobileMenuVariants}
-            className="absolute top-full left-0 right-0 bg-white border-b border-gray-100 md:hidden mobile-menu z-[1001]"
+            className="fixed inset-0 top-[72px] bg-white md:hidden mobile-menu z-[1001] overflow-y-auto"
           >
-              <div className="px-4 py-2 space-y-1">
+              <div className="px-4 py-6 space-y-4">
                 <button 
                   onClick={() => handleMobileMenuClick('product')}
-                  className="w-full text-left px-3 py-2 text-sm font-bold text-gray-600 hover:text-teal-600 hover:bg-teal-100/50 rounded-lg transition-all duration-200 cursor-pointer"
+                  className="w-full text-left px-3 py-2 text-base font-bold text-gray-600 hover:text-teal-600 hover:bg-teal-100/50 rounded-lg transition-all duration-200 cursor-pointer"
                 >
                   Products
                 </button>
@@ -679,7 +679,7 @@ export default function Navbar() {
 
                 <button 
                   onClick={() => handleMobileMenuClick('useCases')}
-                  className="w-full text-left px-3 py-2 text-sm font-bold text-gray-600 hover:text-teal-600 hover:bg-teal-100/50 rounded-lg transition-all duration-200 cursor-pointer"
+                  className="w-full text-left px-3 py-2 text-base font-bold text-gray-600 hover:text-teal-600 hover:bg-teal-100/50 rounded-lg transition-all duration-200 cursor-pointer"
                 >
                   Use Cases
                 </button>
@@ -687,7 +687,7 @@ export default function Navbar() {
 
                 <button 
                   onClick={() => handleMobileMenuClick('learn')}
-                  className="w-full text-left px-3 py-2 text-sm font-bold text-gray-600 hover:text-teal-600 hover:bg-teal-100/50 rounded-lg transition-all duration-200 cursor-pointer"
+                  className="w-full text-left px-3 py-2 text-base font-bold text-gray-600 hover:text-teal-600 hover:bg-teal-100/50 rounded-lg transition-all duration-200 cursor-pointer"
                 >
                   Learn
                 </button>
@@ -695,21 +695,21 @@ export default function Navbar() {
 
                 <button 
                   onClick={() => handleMobileMenuClick('developer')}
-                  className="w-full text-left px-3 py-2 text-sm font-bold text-gray-600 hover:text-teal-600 hover:bg-teal-100/50 rounded-lg transition-all duration-200 cursor-pointer"
+                  className="w-full text-left px-3 py-2 text-base font-bold text-gray-600 hover:text-teal-600 hover:bg-teal-100/50 rounded-lg transition-all duration-200 cursor-pointer"
                 >
                   Developers
                 </button>
                 {activeMobileDropdown === 'developer' && renderDeveloperDropdown()}
 
-                <div className="pt-4 pb-2 border-t border-gray-100">
+                <div className="pt-6 pb-2 border-t border-gray-100">
                   <Link
                     href="/signin"
-                    className="group flex items-center px-3 py-2 text-sm font-medium text-gray-600 hover:text-teal-600 transition-all duration-300 cursor-pointer"
+                    className="group flex items-center px-3 py-3 text-base font-medium text-gray-600 hover:text-teal-600 transition-all duration-300 cursor-pointer"
                   >
                     Sign in
                     <LogIn className="w-4 h-4 ml-1 transition-all duration-300 group-hover:ml-2" />
-              </Link>
-                  <Button className="group w-full mt-2 bg-teal-600 hover:bg-teal-700 text-white rounded-full transition-all duration-300 cursor-pointer flex items-center justify-center">
+                  </Link>
+                  <Button className="group w-full mt-4 bg-teal-600 hover:bg-teal-700 text-white rounded-full transition-all duration-300 cursor-pointer flex items-center justify-center py-6 text-base">
                     Contact Us
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -725,9 +725,9 @@ export default function Navbar() {
                         d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
                       />
                     </svg>
-                </Button>
+                  </Button>
+                </div>
               </div>
-            </div>
           </motion.div>
         )}
       </AnimatePresence>
