@@ -126,13 +126,13 @@ export default function FeaturesSection() {
                 whileHover={{ scale: 1.02, rotate: 1 }}
                 transition={{ duration: 0.4, ease: "easeOut" }}
               >
-                <Image
-                  src="/images/image body 2.png"
-                  alt="Software Integration"
-                  width={600}
-                  height={500}
+              <Image
+                src="/images/image body 2.png"
+                alt="Software Integration"
+                width={600}
+                height={500}
                   className="w-full max-w-lg mx-auto rounded-xl shadow-lg"
-                />
+              />
                 
                 {/* Shine effect */}
                 <motion.div

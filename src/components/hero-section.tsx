@@ -5,6 +5,7 @@ import { motion, useInView, useAnimation, Variants } from "framer-motion";
 import { useRef, useEffect } from "react";
 import { HeroIllustration } from "./hero-illustration";
 import { HeroIllustrationMobile } from "./hero-illustration-mobile";
+import Navbar from "./navbar";
 
 export default function HeroSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -90,7 +91,7 @@ export default function HeroSection() {
   return (
     <section 
       ref={sectionRef} 
-      className="relative h-auto md:h-[90vh] flex items-center overflow-hidden bg-gradient-to-br from-gray-50 via-teal-50/30 to-white pt-6 pb-0 md:py-0"
+      className="relative h-auto md:h-[90vh] flex flex-col items-center overflow-hidden bg-gradient-to-br from-gray-50 via-teal-50/30 to-white pt-0 pb-0 md:py-0"
     >
       <div 
         className="absolute inset-0 -z-10" 
@@ -101,6 +102,8 @@ export default function HeroSection() {
           opacity: 0.02
         }}
       />
+
+      <Navbar />
       
       <div className="container mx-auto px-4">
         <div className="flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-16">
@@ -160,12 +163,12 @@ export default function HeroSection() {
 
           {/* Right Column - Illustration */}
           <motion.div 
-            className="lg:w-[55%] h-[300px] sm:h-[400px] md:h-[500px] lg:h-[550px] scale-90 sm:scale-100"
+            className="w-[95%] lg:w-[55%] h-[300px] sm:h-[400px] md:h-[500px] lg:h-[550px] sm:scale-100"
             variants={illustrationVariants}
             initial="hidden"
             animate={mainControls}
           >
-            <div className="block sm:hidden">
+            <div className="block sm:hidden w-full">
               <HeroIllustrationMobile />
             </div>
             <div className="hidden sm:block">

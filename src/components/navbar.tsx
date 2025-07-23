@@ -207,7 +207,7 @@ export default function Navbar() {
 
   const renderProductDropdown = () => (
     <motion.div 
-      className="p-4"
+      className="p-4 z-1000"
       variants={containerVariants}
       initial="hidden"
       animate="visible"
@@ -352,7 +352,7 @@ export default function Navbar() {
 
   const renderDeveloperDropdown = () => (
     <motion.div 
-      className="p-4"
+      className="p-4 z-90000"
       variants={containerVariants}
       initial="hidden"
       animate="visible"
@@ -423,7 +423,9 @@ export default function Navbar() {
   );
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-white/70 border-b border-gray-100/50 supports-[backdrop-filter]:bg-white/70">
+    <nav 
+      className="mb-0 md:mb-16 w-full bg-gradient-to-br from-gray-50 via-teal-50/30 to-white relative z-[999]"
+    >
       <div className="container mx-auto px-4 flex items-center justify-between h-[72px]">
         {/* Logo */}
         <div className="flex-shrink-0">
@@ -664,7 +666,7 @@ export default function Navbar() {
             animate="visible"
             exit="hidden"
             variants={mobileMenuVariants}
-              className="absolute top-full left-0 right-0 bg-white border-b border-gray-100 md:hidden mobile-menu"
+            className="absolute top-full left-0 right-0 bg-white border-b border-gray-100 md:hidden mobile-menu z-[1001]"
           >
               <div className="px-4 py-2 space-y-1">
                 <button 

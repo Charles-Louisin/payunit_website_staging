@@ -121,7 +121,7 @@ export default function WorldSection() {
                 className="text-3xl md:text-4xl font-bold text-gray-900 bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-teal-600"
                 variants={itemVariants}
               >
-                Accross the world
+              Accross the world
               </motion.h2>
             </motion.div>
             
@@ -168,13 +168,13 @@ export default function WorldSection() {
                 whileHover={{ scale: 1.02, rotate: 1 }}
                 transition={{ duration: 0.4, ease: "easeOut" }}
               >
-                <Image
-                  src="/images/image body 3.png"
-                  alt="Global Payments"
-                  width={600}
-                  height={500}
+              <Image
+                src="/images/image body 3.png"
+                alt="Global Payments"
+                width={600}
+                height={500}
                   className="w-full max-w-lg rounded-xl shadow-lg"
-                />
+              />
                 
                 {/* Shine effect */}
                 <motion.div

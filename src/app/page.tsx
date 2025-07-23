@@ -14,7 +14,7 @@ export default function Home() {
 
   return (
     <main ref={mainRef} className="bg-white overflow-hidden">
-      <Navbar />
+      {/* <Navbar /> */}
       <HeroSection />
       <SeamlessPayments />
       <FeaturesSection />
