@@ -1,6 +1,5 @@
 "use client"
 
-import Navbar from "@/components/navbar";
 import HeroSection from "@/components/hero-section";
 import SeamlessPayments from "@/components/seamless-payments";
 import FeaturesSection from "@/components/features-section";
@@ -14,7 +13,6 @@ export default function Home() {
 
   return (
     <main ref={mainRef} className="bg-white overflow-hidden">
-      {/* <Navbar /> */}
       <HeroSection />
       <SeamlessPayments />
       <FeaturesSection />

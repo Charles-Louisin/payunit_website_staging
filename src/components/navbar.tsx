@@ -221,10 +221,10 @@ export default function Navbar() {
       
       <div className="grid grid-cols-1 gap-2">
         <motion.div variants={itemVariants}>
-          <Link href="#" className="block px-4 py-3 text-sm rounded-lg hover:bg-teal-50/80 transition-all duration-200 group">
+          <Link href="/payment-link" className="block px-4 py-3 text-sm rounded-lg hover:bg-teal-50/80 transition-all duration-200 group">
             <div className="font-medium text-gray-900 group-hover:text-teal-600 flex items-center">
               <span className="mr-2">💳</span>
-              Payment
+              Payment Links
             </div>
             <div className="text-xs text-gray-500 group-hover:text-gray-600 ml-6">Online Payment</div>
         </Link>
@@ -251,13 +251,13 @@ export default function Navbar() {
         </motion.div>
 
         <motion.div variants={itemVariants}>
-          <Link href="#" className="block px-4 py-3 text-sm rounded-lg hover:bg-teal-50/80 transition-all duration-200 group">
+          <Link href="/facture" className="block px-4 py-3 text-sm rounded-lg hover:bg-teal-50/80 transition-all duration-200 group">
             <div className="font-medium text-gray-900 group-hover:text-teal-600 flex items-center">
-              <span className="mr-2">🔗</span>
-              Payment Links
+              <span className="mr-2">📄</span>
+              Facturation
             </div>
-            <div className="text-xs text-gray-500 group-hover:text-gray-600 ml-6">No-code payment</div>
-        </Link>
+            <div className="text-xs text-gray-500 group-hover:text-gray-600 ml-6">Gestion des factures</div>
+          </Link>
         </motion.div>
       </div>
     </motion.div>
@@ -625,7 +625,7 @@ export default function Navbar() {
         {/* Sign In and Contact Button */}
         <div className="hidden md:flex items-center space-x-4">
           <Link 
-            href="/signin" 
+            href="/auth/login" 
             className="group flex items-center text-sm font-medium text-gray-600 hover:text-teal-600 transition-all duration-300 cursor-pointer"
           >
             Sign in
@@ -713,7 +713,7 @@ export default function Navbar() {
 
                 <div className="pt-6 pb-2 border-t border-gray-100">
                   <Link
-                    href="/signin"
+                    href="/auth/login"
                     className="group flex items-center px-3 py-3 text-base font-medium text-gray-600 hover:text-teal-600 transition-all duration-300 cursor-pointer"
                   >
                     Sign in

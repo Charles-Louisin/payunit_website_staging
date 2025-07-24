@@ -81,7 +81,7 @@ export default function PDVPage() {
 
                 {/* Contenu de la Bannière */}
                 <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8 h-full">
-                    <div className="grid lg:grid-cols-2 gap-12 items-center py-16 lg:py-24">
+                    <div className="grid lg:grid-cols-2 gap-12 items-center pt-8 lg:pt-0">
                         <motion.div
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
