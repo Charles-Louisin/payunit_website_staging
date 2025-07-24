@@ -241,6 +241,16 @@ export default function Navbar() {
         </motion.div>
 
         <motion.div variants={itemVariants}>
+          <Link href="/pdv" className="block px-4 py-3 text-sm rounded-lg hover:bg-teal-50/80 transition-all duration-200 group">
+            <div className="font-medium text-gray-900 group-hover:text-teal-600 flex items-center">
+              <span className="mr-2">🏪</span>
+              PDV
+            </div>
+            <div className="text-xs text-gray-500 group-hover:text-gray-600 ml-6">Point de Vente</div>
+          </Link>
+        </motion.div>
+
+        <motion.div variants={itemVariants}>
           <Link href="#" className="block px-4 py-3 text-sm rounded-lg hover:bg-teal-50/80 transition-all duration-200 group">
             <div className="font-medium text-gray-900 group-hover:text-teal-600 flex items-center">
               <span className="mr-2">🔗</span>
@@ -708,7 +718,7 @@ export default function Navbar() {
                   >
                     Sign in
                     <LogIn className="w-4 h-4 ml-1 transition-all duration-300 group-hover:ml-2" />
-                  </Link>
+              </Link>
                   <Button className="group w-full mt-4 bg-teal-600 hover:bg-teal-700 text-white rounded-full transition-all duration-300 cursor-pointer flex items-center justify-center py-6 text-base">
                     Contact Us
                     <svg
@@ -725,9 +735,9 @@ export default function Navbar() {
                         d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
                       />
                     </svg>
-                  </Button>
-                </div>
+                </Button>
               </div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
